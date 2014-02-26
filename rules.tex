@@ -1,0 +1,729 @@
+%\documentclass{llncs}
+%\documentclass[draft,preprint]{sigplanconf}
+\documentclass[english]{article}
+
+
+\usepackage{tikz}
+\tikzstyle{every picture}+=[remember picture,baseline]
+\tikzstyle{every path}+=[thick, rounded corners=0.5cm,red,dashed]
+
+\usepackage{amssymb,amsmath,amsthm}
+\usepackage{proof}
+\usepackage{graphicx,color,url}
+\usepackage{booktabs}
+\usepackage{prooftree}
+\usepackage{rotating}
+\usepackage[vlined]{algorithm2e}
+
+
+%% Theorem environments
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{principle}{Principle}
+\theoremstyle{definition}
+\newtheorem{defn}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+
+
+
+
+%% JB: General mathematical notations
+
+\renewcommand{\vec}[1]{\mathbf{#1}}
+\newcommand{\pow}[1]{\mbox{Pow}(#1)}
+\newcommand{\defeq}{=_{\mbox{\scriptsize{def}}}}
+\newcommand{\restrict}{\upharpoonright}
+\newcommand{\nat}{\mathbb{N}}
+\newcommand{\natzero}{\mathbb{N}_0}
+\newcommand{\range}[2]{\{{#1},\ldots,{#2}\}}
+\newcommand{\setcomp}{\,\,|\,\,}
+\newcommand{\pair}[2]{\langle{#1},{#2}\rangle}
+\newcommand{\partialfn}{\rightharpoonup}
+
+%% Commands
+
+\newcommand{\fault}{\mathit{fault}}
+\newcommand{\nil}{\mathsf{nil}}
+\newcommand{\true}{\mathsf{true}}
+\newcommand{\false}{\mathsf{false}}
+\newcommand{\new}{{\tt new}}
+\newcommand{\free}{{\tt free}}
+\newcommand{\goto}[1]{{\tt goto}\,#1}
+\newcommand{\ifgoto}[2]{{\tt if}\,{#1}\,\goto{#2}}
+\newcommand{\ifthen}[2]{{\tt if}\,{#1}\,{\tt then}\,{#2}\,{\tt fi}}
+\newcommand{\ifelse}[3]{{\tt if}\,{#1}\,{\tt then}\,{#2}\,{\tt else}\,{#3}\,{\tt fi}}
+\newcommand{\while}[2]{{\tt while}\,{#1}\,{\tt do}\,{#2}\,{\tt od}}
+\newcommand{\assign}[2]{{#1}\,:=\,{#2}}
+\renewcommand{\stop}{\epsilon}
+
+
+%%  Program semantics
+
+\newcommand{\nilv}{\mathit{nil}}
+\newcommand{\onestep}[2]{{#1}\leadsto{#2}}
+\newcommand{\sem}[1]{[\![#1]\!]}
+\newcommand{\indsem}[1]{\sem{#1}^\Phi}
+\newcommand{\fv}{\textit{fv}}
+\newcommand{\dom}{\textit{dom}}
+\newcommand{\pvar}{{\sf PVar}}
+\newcommand{\expr}{\mathsf{Expr}}
+\newcommand{\fields}{{\sf Fld}}
+\newcommand{\fns}{{\sf Fn}}
+\newcommand{\var}{{\sf Var}}
+\newcommand{\lvar}{{\sf LVar}}
+\newcommand{\val}{{\sf Val}}
+\newcommand{\loc}{{\sf Loc}}
+\newcommand{\stacks}{{\sf Stacks}}
+\newcommand{\heaps}{{\sf Heaps}}
+\newcommand{\states}{{\sf States}}
+\newcommand{\assert}{\mathsf{assert}}
+\newcommand{\mimp}{{-\!\!*}}
+\newcommand{\emp}{\mathsf{emp}}
+\newcommand{\psto}{{{\mapsto}}}
+\newcommand{\assume}[1]{{\tt assume}(#1)}
+\newcommand{\term}{\textit{term}}
+\newcommand{\comp}[3]{\mbox{${#1} \leadsto^{#3} {#2}$}}
+
+
+%% JB: BI stuff and general logical notations
+
+\newcommand{\wand}{\mathrel{\hbox{---}\llap{$\ast$}}}
+\newcommand{\bigand}{\textstyle\bigwedge}
+\newcommand{\bigor}{\textstyle\bigvee}
+
+%% Proof structures
+\newcommand{\drv}{\mathcal{D}}
+\newcommand{\prf}{\mathcal{P}}
+\newcommand{\graph}[1]{\mathcal{G}_{#1}}
+\newcommand{\rpt}{\mathcal{R}}
+\newcommand{\link}{\mathcal{L}}
+\newcommand{\judgement}[2]{#1 \vdash #2}
+\newcommand{\seq}[2]{#1 \vdash #2}
+\newcommand{\sh}[2]{\begin{array}{l}#1\\[0.9ex]#2\end{array}}
+\newcommand{\T}[1]{\vdash_{#1}\downarrow}
+
+%% Inductive definitions
+
+\newcommand{\indrule}[3]{#1 \stackrel{#3}{\Rightarrow} #2}
+\newcommand{\monop}[1]{\varphi_{#1}}
+\newcommand{\approxseq}[2]{\varphi_{#1}^{#2}}
+
+%% Proof rule labels
+
+\newcommand{\ax}{{\mbox{(Id)}}}
+\newcommand{\weak}{{\mbox{(Weak)}}}
+\newcommand{\framerule}{{\mbox{(Frame)}}}
+\newcommand{\contr}{{{\mbox{(Contr)}}}}
+\newcommand{\bunchequiv}{{{\mbox{(Equiv)}}}}
+\newcommand{\cut}{{{\mbox{(Cut)}}}}
+\newcommand{\subst}{{{\mbox{(Subst)}}}}
+\newcommand{\empl}{{{\mbox{($\emp$)}}}}
+\newcommand{\falsei}{{{\mbox{($\bot$)}}}}
+\newcommand{\andi}{{{\mbox{($\wedge$)}}}}
+\newcommand{\ori}{{{\mbox{($\vee$)}}}}
+\newcommand{\impi}{{{\mbox{($\rightarrow$)}}}}
+\newcommand{\stari}{{{\mbox{($*$)}}}}
+\newcommand{\wandi}{{{\mbox{($\wand$)}}}}
+\newcommand{\alli}{{{\mbox{($\forall$)}}}}
+\newcommand{\exi}{{{\mbox{($\exists$)}}}}
+\newcommand{\idpcase}[1]{{ {\mbox{(${#1}$)}}}}
+\newcommand{\abdcase}[1]{{ \mathcal{A}{\mbox{(${#1}$)}}}}
+\newcommand{\eqi}{{{\mbox{($=$)}}}}
+\newcommand{\rewr}{{{\mbox{($\equiv$)}}}}
+\newcommand{\reductio}{{{\mbox{($RAA$)}}}}
+\newcommand{\eqcontr}{{{\mbox{($\neq$)}}}}
+\newcommand{\pointstocontr}{{{\mbox{($\mapsto$)}}}}
+
+\newcommand{\makelarge}[1]{\scalebox{1.15}{#1}}
+\newcommand{\rusing}[1]{\using\scalebox{0.8}{${#1}$}}
+% Example predicates
+
+\newcommand{\cls}[1]{\mathsf{cls}(#1)}
+\newcommand{\ls}[1]{\mathsf{ls}(#1)}
+\newcommand{\lseg}[2]{\mathsf{lseg}(#1,#2)}
+\newcommand{\bt}[1]{\mathsf{bt}(#1)}
+
+
+
+
+% Implementation
+
+\newcommand{\cyclist}{\textsc{Cyclist}}
+\newcommand{\caber}{\textsc{Caber}}
+\SetKwFunction{abducesymex}{abduce\_symex}
+\SetKwFunction{closebyaxiom}{close\_by\_axiom}
+\SetKwFunction{abducebacklink}{abduce\_backlink}
+\SetKwFunction{abducebranch}{abduce\_branch}
+\SetKwFunction{abducederef}{abduce\_deref}
+\SetKwFunction{abducegen}{ex\_gen}
+\SetKwFunction{consistent}{sat}
+\SetKwFunction{sound}{sound}
+\SetKwFunction{pc}{cmd}
+\SetKwFunction{head}{head}
+\SetKwFunction{tail}{tail}
+\SetKwFunction{concat}{concat}
+\SetKwFunction{proofsearch}{prove}
+\SetKwFunction{symexrule}{symex\_rule}
+\SetKwFunction{symex}{sym\_exec}
+\SetKwFunction{exgen}{ex\_gen}
+\SetKwFunction{seggen}{seg\_gen}
+
+%% Comments
+\newcommand{\authorcomment}[2]{
+\begin{center}
+\fbox{
+\begin{minipage}{3in}
+{\bf #1:} {\it #2}
+\end{minipage}}
+\end{center}}
+\newcommand{\jbcomment}[1]{\authorcomment{James' comment}{#1}}
+\newcommand{\nikoscomment}[1]{\authorcomment{Nikos' comment}{#1}}
+
+\newcommand{\subsec}[1]{\subsection{#1}}
+\begin{document}
+
+\section{Programs and preconditions}
+\label{sec:prelims}
+
+\begin{figure*}[ht]
+\noindent{\bf Symbolic execution rules:}
+\[\begin{array}{cc}
+\begin{prooftree}
+\judgement{x = E[x'/x] * F[x'/x]}{C}
+\justifies
+\judgement{F}{x:=E;\,C}
+%\using C_i :
+\end{prooftree}
+\qquad
+\begin{prooftree}
+\judgement{x = E_{\overline{f}}[x'/x] * (y \mapsto \vec{E} * F)[x'/x]}{C}
+\justifies
+\judgement{y\mapsto \vec{E} * F}{x:=y.f;\,C}
+\using |\vec{E}| \geq \overline{f}
+\end{prooftree}
+\qquad
+\begin{prooftree}
+\judgement{x \mapsto \vec{E}[E/\vec{E}_{\overline{f}}] * F}{C}
+\justifies
+\judgement{x \mapsto \vec{E} * F}{x.f:=E;\,C}
+\using |\vec{E}| \geq \overline{f}
+\end{prooftree}
+\\ \\
+\begin{prooftree}
+\phantom{\judgement{F}{\stop}}
+\justifies
+\judgement{F}{\stop}
+%\using C_i : \stop
+\end{prooftree}
+\qquad\qquad
+\begin{prooftree}
+\judgement{x\mapsto(x_1',\ldots,x_k') * F[x'/x]}{C}
+\justifies
+\judgement{F}{x:=\new();\,C}
+\end{prooftree}
+\qquad\qquad
+\begin{prooftree}
+\judgement{F}{C}
+\justifies
+\judgement{x \mapsto \vec{E} * F}{\free(x);\,C}
+\end{prooftree}
+\\ \\
+\begin{prooftree}
+\judgement{B * F}{C;\,C''}% \quad \judgement{\Pi,\overline{B} : F}{i+1}
+\justifies
+\judgement{B * F}{\ifelse{B}{C}{C'};\,C''}
+%\using B \in \Pi
+\end{prooftree}
+\qquad
+\begin{prooftree}
+\judgement{\overline{B} * F}{C';\,C''}
+\justifies
+\judgement{\overline{B} * F}{\ifelse{B}{C}{C'};\,C''}
+%\using  \in \Pi
+\end{prooftree}
+\qquad
+\begin{prooftree}
+\judgement{F}{C;\,C''}
+\qquad
+\judgement{F}{C';\,C''}
+\justifies
+\judgement{F}{\ifelse{\star}{C}{C'};\,C''}
+\end{prooftree}
+\\ \\
+\begin{prooftree}
+\judgement{B * F}{C;\, \while{B}{C};\,C'}
+\justifies
+\judgement{B * F}{\while{B}{C};\,C'}
+%\using B \in \Pi
+\end{prooftree}
+\qquad
+\begin{prooftree}
+\judgement{\overline{B} * F}{C'}
+\justifies
+\judgement{\overline{B} * F}{\while{B}{C};\,C'}
+%\using \overline{B} \in \Pi
+\end{prooftree}
+\qquad
+\begin{prooftree}
+\judgement{F}{C;\, \while{B}{C};\,C'}
+\qquad
+\judgement{F}{C'}
+\justifies
+\judgement{F}{\while{\star}{C};\,C'}
+%\using \overline{B} \in \Pi
+\end{prooftree}
+\\ \\
+\end{array}\]
+
+\noindent{\bf Logical rules:}
+
+\[\begin{array}{c}
+\begin{prooftree}
+\judgement{F}{C}
+\justifies
+\judgement{F * G}{C}
+\using \framerule%\;\Pi' \subseteq \Pi\;
+\end{prooftree}
+\qquad
+\begin{prooftree}
+\judgement{F}{C}
+\justifies
+\judgement{F[E/x]}{C}
+\using \;x \mbox{ not in }C\;\subst
+\end{prooftree}
+\qquad
+\begin{prooftree}
+\judgement{F'}{C}
+\justifies
+\judgement{F}{C}
+\using \;F \equiv F' \; \bunchequiv
+\end{prooftree}
+\qquad
+\begin{prooftree}
+\judgement{G' * F}{C}
+\justifies
+\judgement{G * F}{C}
+\using \; \seq{G}{G'} \; \cut
+\end{prooftree}
+\\ \\
+\begin{prooftree}
+\judgement{(t_1 = t_2 * F)[t_2/x,t_1/y]}{C}
+\justifies
+\judgement{(t_1 = t_2 * F)[t_1/x,t_2/y]}{C}
+\using \eqi
+\end{prooftree}
+\qquad\qquad
+%\multicolumn{3}{c}{
+\begin{prooftree}
+%\phantom{F}
+\justifies
+\judgement{t_1 = t_2 * t_1 \neq t_2 * F}{C} \using \eqcontr
+\end{prooftree}
+\qquad\qquad
+\begin{prooftree}
+%\phantom{F}
+\justifies
+\judgement{x \mapsto \vec{E} * x \mapsto \vec{E'} * F}{C} \using \pointstocontr
+\end{prooftree} \\ \\
+%} \\
+\end{array}\]
+
+{\bf Predicate unfolding rule:}
+
+\[\begin{prooftree}
+(\judgement{\vec{E} = \vec{E_j}[\vec{x_j}/\vec{z_j}] * F_j[\vec{x_j}/\vec{z_j}] * F}{C})_{1 \leq j \leq k}
+\justifies
+\judgement{P(\vec{E}) * F}{C}
+\using \;\begin{array}{l} \Phi_P = \{\indrule{F_1}{P(\vec{E_1})}{\vec{z_1}},\ldots,\indrule{F_k}{P(\vec{E_k)}}{\vec{z_k}}\}
+\\[0.5ex]
+\forall x_j \in \{\vec{x_j}\}.\ x_j \mbox{ is fresh} \end{array} \;\idpcase{P}
+\end{prooftree}\]
+
+\caption{Hoare logic rules for proof judgements.\label{fig:proof_rules}}
+\end{figure*}
+
+
+
+
+
+\begin{figure*}[ht]
+
+{\bf Predicate unfolding rule:}
+
+\[\begin{prooftree}
+(\judgement{\vec{E} = \vec{E_j}[\vec{x_j}/\vec{z_j}] * F_j[\vec{x_j}/\vec{z_j}] * F}{C})_{1 \leq j \leq k}
+\justifies
+\judgement{P(\vec{E}) * F}{C}
+\using \;\begin{array}{l} \Phi_P = \{\indrule{F_1}{P(\vec{E_1})}{\vec{z_1}},\ldots,\indrule{F_k}{P(\vec{E_k)}}{\vec{z_k}}\}
+\\[0.5ex]
+\forall x_j \in \{\vec{x_j}\}.\ x_j \mbox{ is fresh} \end{array} \;\idpcase{P}
+\end{prooftree}\]
+
+\caption{Example1.\label{fig:example1}}
+\end{figure*}
+
+
+\begin{prooftree}
+  % ls_1(x,nil) |-_0 !
+  \[ % nil=x * ls_1(x,nil) |-_3 !
+  (\mbox{Stop})
+  \justifies
+  \thickness=0.1em
+  1 : 
+  \begin{array}[b]{l}
+    \mbox{\texttt{nil}} = x \\ 
+    {\mathit{ls}}_{1}(x, \mbox{\texttt{nil}})
+  \end{array}
+  {\vdash }_{3}
+  \]
+  \[ % nil!=x * ls_1(x,nil) |-_1 !
+  \[ % nil=x * nil!=x |-_1 !
+  (\mbox{Ex Falso})
+  \justifies
+  \thickness=0.1em
+  3 : 
+  \begin{array}[b]{l}
+    \mbox{\texttt{nil}} = x \\ 
+    \mbox{\texttt{nil}}\ne x
+  \end{array}
+  {\vdash }_{1}
+  \]
+  \[ % nil!=x * x->z' * ls_1(z',nil) |-_1 !
+  \[ % x'!=nil * x'->x * ls_1(x,nil) |-_2 !
+  \[ % x'!=nil * x'->x * ls_1(x,nil) |-_0 !
+  \to 0(\mbox{Backl})
+  \justifies
+  \thickness=0.1em
+  6 : 
+  \begin{array}[b]{l}
+    x'\ne \mbox{\texttt{nil}} \\ 
+    x'\mapsto x \\ 
+    {\mathit{ls}}_{1}(x, \mbox{\texttt{nil}})
+  \end{array}
+  {\vdash }_{0}
+  \]
+  \justifies
+  \thickness=0.1em
+  5 : 
+  \begin{array}[b]{l}
+    x'\ne \mbox{\texttt{nil}} \\ 
+    x'\mapsto x \\ 
+    {\mathit{ls}}_{1}(x, \mbox{\texttt{nil}})
+  \end{array}
+  {\vdash }_{2}
+  \using(\mbox{Goto})
+  \]
+  \justifies
+  \thickness=0.1em
+  4 : 
+  \begin{array}[b]{l}
+    \mbox{\texttt{nil}}\ne x \\ 
+    x\mapsto z' \\ 
+    {\mathit{ls}}_{1}(z', \mbox{\texttt{nil}})
+  \end{array}
+  {\vdash }_{1}
+  \using(\mbox{Load})
+  \]
+  \justifies
+  \thickness=0.1em
+  2 : 
+  \begin{array}[b]{l}
+    \mbox{\texttt{nil}}\ne x \\ 
+    {\mathit{ls}}_{1}(x, \mbox{\texttt{nil}})
+  \end{array}
+  {\vdash }_{1}
+  \using(\mbox{ls L.Unf.})
+  \]
+  \justifies
+  \thickness=0.1em
+  0 : 
+  \begin{array}[b]{l}
+    {\mathit{ls}}_{1}(x, \mbox{\texttt{nil}})
+  \end{array}
+  {\vdash }_{0}
+  \using(\mbox{If(det)})
+\end{prooftree}
+
+
+\begin{prooftree}
+  % bt_1(x) |-_0 !
+  \[ % nil=x * bt_1(x) |-_6 !
+  (\mbox{Stop})
+  \justifies
+  \thickness=0.1em
+  1 : 
+  \begin{array}[b]{l}
+    \mbox{\texttt{nil}} = x \\ 
+    {\mathit{bt}}_{1}(x)
+  \end{array}
+  {\vdash }_{6}
+  \]
+  \[ % nil!=x * bt_1(x) |-_1 !
+  \[ % nil!=x * bt_1(x) |-_4 !
+  \[ % nil=x * nil!=x |-_4 !
+  (\mbox{Ex Falso})
+  \justifies
+  \thickness=0.1em
+  5 : 
+  \begin{array}[b]{l}
+    \mbox{\texttt{nil}} = x \\ 
+    \mbox{\texttt{nil}}\ne x
+  \end{array}
+  {\vdash }_{4}
+  \]
+  \[ % nil!=x * x->z',a' * bt_1(a') * bt_1(z') |-_4 !
+  \[ % x'!=nil * x'->z',x * bt_1(z') * bt_1(x) |-_5 !
+  \[ % x'!=nil * x'->z',x * bt_1(z') * bt_1(x) |-_0 !
+  \to 0(\mbox{Backl})
+  \justifies
+  \thickness=0.1em
+  8 : 
+  \begin{array}[b]{l}
+    x'\ne \mbox{\texttt{nil}} \\ 
+    x'\mapsto z', x \\ 
+    {\mathit{bt}}_{1}(z')\ast {\mathit{bt}}_{1}(x)
+  \end{array}
+  {\vdash }_{0}
+  \]
+  \justifies
+  \thickness=0.1em
+  7 : 
+  \begin{array}[b]{l}
+    x'\ne \mbox{\texttt{nil}} \\ 
+    x'\mapsto z', x \\ 
+    {\mathit{bt}}_{1}(z')\ast {\mathit{bt}}_{1}(x)
+  \end{array}
+  {\vdash }_{5}
+  \using(\mbox{Goto})
+  \]
+  \justifies
+  \thickness=0.1em
+  6 : 
+  \begin{array}[b]{l}
+    \mbox{\texttt{nil}}\ne x \\ 
+    x\mapsto z', a' \\ 
+    {\mathit{bt}}_{1}(a')\ast {\mathit{bt}}_{1}(z')
+  \end{array}
+  {\vdash }_{4}
+  \using(\mbox{Load})
+  \]
+  \justifies
+  \thickness=0.1em
+  3 : 
+  \begin{array}[b]{l}
+    \mbox{\texttt{nil}}\ne x \\ 
+    {\mathit{bt}}_{1}(x)
+  \end{array}
+  {\vdash }_{4}
+  \using(\mbox{bt L.Unf.})
+  \]
+  \[ % nil!=x * bt_1(x) |-_2 !
+  \[ % nil=x * nil!=x |-_2 !
+  (\mbox{Ex Falso})
+  \justifies
+  \thickness=0.1em
+  9 : 
+  \begin{array}[b]{l}
+    \mbox{\texttt{nil}} = x \\ 
+    \mbox{\texttt{nil}}\ne x
+  \end{array}
+  {\vdash }_{2}
+  \]
+  \[ % nil!=x * x->z',a' * bt_1(a') * bt_1(z') |-_2 !
+  \[ % x'!=nil * x'->x,a' * bt_1(a') * bt_1(x) |-_3 !
+  \[ % x'!=nil * x'->x,a' * bt_1(a') * bt_1(x) |-_0 !
+  \to 0(\mbox{Backl})
+  \justifies
+  \thickness=0.1em
+  12 : 
+  \begin{array}[b]{l}
+    x'\ne \mbox{\texttt{nil}} \\ 
+    x'\mapsto x, a' \\ 
+    {\mathit{bt}}_{1}(a')\ast {\mathit{bt}}_{1}(x)
+  \end{array}
+  {\vdash }_{0}
+  \]
+  \justifies
+  \thickness=0.1em
+  11 : 
+  \begin{array}[b]{l}
+    x'\ne \mbox{\texttt{nil}} \\ 
+    x'\mapsto x, a' \\ 
+    {\mathit{bt}}_{1}(a')\ast {\mathit{bt}}_{1}(x)
+  \end{array}
+  {\vdash }_{3}
+  \using(\mbox{Goto})
+  \]
+  \justifies
+  \thickness=0.1em
+  10 : 
+  \begin{array}[b]{l}
+    \mbox{\texttt{nil}}\ne x \\ 
+    x\mapsto z', a' \\ 
+    {\mathit{bt}}_{1}(a')\ast {\mathit{bt}}_{1}(z')
+  \end{array}
+  {\vdash }_{2}
+  \using(\mbox{Load})
+  \]
+  \justifies
+  \thickness=0.1em
+  4 : 
+  \begin{array}[b]{l}
+    \mbox{\texttt{nil}}\ne x \\ 
+    {\mathit{bt}}_{1}(x)
+  \end{array}
+  {\vdash }_{2}
+  \using(\mbox{bt L.Unf.})
+  \]
+  \justifies
+  \thickness=0.1em
+  2 : 
+  \begin{array}[b]{l}
+    \mbox{\texttt{nil}}\ne x \\ 
+    {\mathit{bt}}_{1}(x)
+  \end{array}
+  {\vdash }_{1}
+  \using(\mbox{If(non-det)})
+  \]
+  \justifies
+  \thickness=0.1em
+  0 : 
+  \begin{array}[b]{l}
+    {\mathit{bt}}_{1}(x)
+  \end{array}
+  {\vdash }_{0}
+  \using(\mbox{If(det)})
+\end{prooftree}
+
+
+\section{Example3}
+
+\begin{prooftree}
+  % ls_1(x,nil) * ls_2(y,nil) |-_1 !
+  \[ % nil=x * ls_1(x,nil) * ls_2(y,nil) |-_7 !
+  (\mbox{Stop})
+  \justifies
+  \thickness=0.1em
+  1 : 
+  \begin{array}[b]{l}
+    \mbox{\texttt{nil}} = x \\ 
+    {\mathit{ls}}_{1}(x, \mbox{\texttt{nil}})\ast {\mathit{ls}}_{2}(y, \mbox{\texttt{nil}})
+  \end{array}
+  {\vdash }_{7}
+  \]
+  \[ % nil!=x * ls_1(x,nil) * ls_2(y,nil) |-_2 !
+  \[ % x=z * nil!=x * ls_1(x,nil) * ls_2(y,nil) |-_3 !
+  \[ % nil=z * x=z * nil!=x * ls_2(y,nil) |-_3 !
+  (\mbox{Ex Falso})
+  \justifies
+  \thickness=0.1em
+  4 : 
+  \begin{array}[b]{l}
+    \mbox{\texttt{nil}} = z\ast x = z \\ 
+    \mbox{\texttt{nil}}\ne x \\ 
+    {\mathit{ls}}_{2}(y, \mbox{\texttt{nil}})
+  \end{array}
+  {\vdash }_{3}
+  \]
+  \[ % x=z * nil!=x * x->z' * ls_1(z',nil) * ls_2(y,nil) |-_3 !
+  \[ % nil!=z * z->x * ls_1(x,nil) * ls_2(y,nil) |-_4 !
+  \[ % nil!=z * z->y * ls_1(x,nil) * ls_2(y,nil) |-_5 !
+  \[ % y=z * nil!=z * z->x' * ls_1(x,nil) * ls_2(x',nil) |-_6 !
+  \[ % y=z * nil!=z * z->x' * ls_1(x,nil) * ls_2(x',nil) |-_1 !
+  \to 0(\mbox{ls Fold/Backl})
+  \justifies
+  \thickness=0.1em
+  9 : 
+  \begin{array}[b]{l}
+    y = z \\ 
+    \mbox{\texttt{nil}}\ne z \\ 
+    z\mapsto x' \\ 
+    {\mathit{ls}}_{1}(x, \mbox{\texttt{nil}})\ast {\mathit{ls}}_{2}(x', \mbox{\texttt{nil}})
+  \end{array}
+  {\vdash }_{1}
+  \]
+  \justifies
+  \thickness=0.1em
+  8 : 
+  \begin{array}[b]{l}
+    y = z \\ 
+    \mbox{\texttt{nil}}\ne z \\ 
+    z\mapsto x' \\ 
+    {\mathit{ls}}_{1}(x, \mbox{\texttt{nil}})\ast {\mathit{ls}}_{2}(x', \mbox{\texttt{nil}})
+  \end{array}
+  {\vdash }_{6}
+  \using(\mbox{Goto})
+  \]
+  \justifies
+  \thickness=0.1em
+  7 : 
+  \begin{array}[b]{l}
+    \mbox{\texttt{nil}}\ne z \\ 
+    z\mapsto y \\ 
+    {\mathit{ls}}_{1}(x, \mbox{\texttt{nil}})\ast {\mathit{ls}}_{2}(y, \mbox{\texttt{nil}})
+  \end{array}
+  {\vdash }_{5}
+  \using(\mbox{Assign})
+  \]
+  \justifies
+  \thickness=0.1em
+  6 : 
+  \begin{array}[b]{l}
+    \mbox{\texttt{nil}}\ne z \\ 
+    z\mapsto x \\ 
+    {\mathit{ls}}_{1}(x, \mbox{\texttt{nil}})\ast {\mathit{ls}}_{2}(y, \mbox{\texttt{nil}})
+  \end{array}
+  {\vdash }_{4}
+  \using(\mbox{Store})
+  \]
+  \justifies
+  \thickness=0.1em
+  5 : 
+  \begin{array}[b]{l}
+    x = z \\ 
+    \mbox{\texttt{nil}}\ne x \\ 
+    x\mapsto z' \\ 
+    {\mathit{ls}}_{1}(z', \mbox{\texttt{nil}})\ast {\mathit{ls}}_{2}(y, \mbox{\texttt{nil}})
+  \end{array}
+  {\vdash }_{3}
+  \using(\mbox{Load})
+  \]
+  \justifies
+  \thickness=0.1em
+  3 : 
+  \begin{array}[b]{l}
+    x = z \\ 
+    \mbox{\texttt{nil}}\ne x \\ 
+    {\mathit{ls}}_{1}(x, \mbox{\texttt{nil}})\ast {\mathit{ls}}_{2}(y, \mbox{\texttt{nil}})
+  \end{array}
+  {\vdash }_{3}
+  \using(\mbox{ls L.Unf.})
+  \]
+  \justifies
+  \thickness=0.1em
+  2 : 
+  \begin{array}[b]{l}
+    \mbox{\texttt{nil}}\ne x \\ 
+    {\mathit{ls}}_{1}(x, \mbox{\texttt{nil}})\ast {\mathit{ls}}_{2}(y, \mbox{\texttt{nil}})
+  \end{array}
+  {\vdash }_{2}
+  \using(\mbox{Assign})
+  \]
+  \justifies
+  \thickness=0.1em
+  0 : 
+  \begin{array}[b]{l}
+    {\mathit{ls}}_{1}(x, \mbox{\texttt{nil}})\ast {\mathit{ls}}_{2}(y, \mbox{\texttt{nil}})
+  \end{array}
+  {\vdash }_{1}
+  \using(\mbox{If(det)})
+\end{prooftree}
+
+
+
+
+
+\end{document}
